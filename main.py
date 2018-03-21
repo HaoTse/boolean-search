@@ -4,6 +4,8 @@ import re
 
 # load zh-TW dictionary
 jieba.set_dictionary('src/dict.txt.big')
+# load user dictionary
+jieba.load_userdict('src/dict.user')
 # load stopwords
 with open('src/stopwords.txt', 'r', encoding='utf-8') as f:
     stopwords = [line.strip() for line in f.readlines()]
@@ -50,6 +52,7 @@ if __name__ == '__main__':
     # TODO load source data, build search engine
     source_data = load_csv(args.source)
     source_data.iloc[:, 1] = source_data.apply(cut, axis=1)
+    print(source_data)
     print('Finish loading source data, and building search engine.')
 
     # TODO compute query result
