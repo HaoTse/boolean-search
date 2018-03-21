@@ -102,3 +102,6 @@ ENV/
 
 # csv data file
 *.csv
+
+# temp file
+tmp
