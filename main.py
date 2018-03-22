@@ -2,6 +2,9 @@ import pandas as pd
 import jieba
 import re
 
+"""
+setup of jieba
+"""
 # load zh-TW dictionary
 jieba.set_dictionary('src/dict.txt.big')
 # load user dictionary
@@ -10,9 +13,19 @@ jieba.load_userdict('src/dict.user')
 with open('src/stopwords.txt', 'r', encoding='utf-8') as f:
     stopwords = [line.strip() for line in f.readlines()]
 
-# output = open('tmp', 'w', encoding='utf-8')
+def load_csv(file_name):
+    """
+    Use pandas to load csv file.
+    """
+    df = pd.read_csv(file_name, delimiter=',', header=None)
+    return df
+
 
 def cut(row):
+    """
+    Use jieba to cut the source sentence.
+    """
+    
     # preprocess number, decimal and percent
     sentence = row.iloc[1]
     sentence = re.sub(r'[0-9]+(.?[0-9]+)?%?', 'TAG_NUM', sentence)
@@ -24,15 +37,22 @@ def cut(row):
         if word not in stopwords and not word.isspace():
             seg.append(word)
 
-    # output.writelines(["%s " % s for s in seg])
-    # output.write('\n')
+    """ output tmp
+    output = open('tmp', 'w', encoding='utf-8')
+    output.writelines(["%s " % s for s in seg])
+    output.write('\n')
+    """
+
     return seg
 
-def load_csv(file_name):
-    df = pd.read_csv(file_name, delimiter=',', header=None)
-    return df
 
 def check(ty, querys, row):
+    """
+    According to type, do different computing.
+    The type can be 'and', 'or', or 'not'.
+    Return true if meeting the type. Else, return false.
+    """
+
     if ty == 'and':
         for query in querys:
             if not query.strip() in row[1]:
@@ -51,6 +71,7 @@ def check(ty, querys, row):
     
     return False
 
+
 if __name__ == '__main__':
     import argparse
 
@@ -66,11 +87,9 @@ if __name__ == '__main__':
                         help='output file name')
     args = parser.parse_args()
     
-    # Please implement your algorithm below
-    
     # TODO load source data, build search engine
     source_data = load_csv(args.source)
-    # source_data.iloc[:, 1] = source_data.apply(cut, axis=1)
+    source_data.iloc[:, 1] = source_data.apply(cut, axis=1)
     print('Finish loading source data, and building search engine.')
 
     # TODO compute query result
