@@ -62,7 +62,7 @@ def check(ty, querys, row):
             for query in querys[1:]:
                 if query.strip() in row[1]:
                     return False
-        return True
+            return True
     
     return False
 
@@ -85,7 +85,7 @@ if __name__ == '__main__':
     # TODO load source data, build search engine
     source_data = load_csv(args.source)
     # source_data.iloc[:, 1] = source_data.apply(cut, axis=1)
-    print('Finish loading source data, and building search engine.')
+    # print('Finish loading source data, and building search engine.')
 
     # TODO compute query result
     # read query file
@@ -121,5 +121,8 @@ if __name__ == '__main__':
             outputs.append([str(0)])
   
     # TODO output result
-    for output in outputs:
-        print(','.join(output))
+    tmp = []
+    with open(args.output, 'w', encoding='utf-8') as f:
+        for output in outputs:
+            tmp.append(','.join(output))
+        f.write('\n'.join(tmp))
