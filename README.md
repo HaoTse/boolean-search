@@ -1,5 +1,9 @@
 # Boolean Search
 
+## Requirements
+- We will only use `2-gram`, `3-gram`, and English terms in queries.
+- Each query will contain only one kind of operation type (either `and`, `or`, or `not`), but may contain many times.
+
 ## Data Format
 
 Query format example:
@@ -19,7 +23,7 @@ Output format example:
 ## Data Process
 - Use `jieba`.
 - Find out number, decimal and percent, and ignore them.
-- Handle Englist and Chinese separately, and find out bigram and trigram in Chinese.
+- Handle Englist and Chinese separately, and beacuse of the requirements, we only find out bigram and trigram in Chinese.
 
 ```
 words = cut list from source sentences using jieba

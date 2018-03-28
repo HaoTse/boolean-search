@@ -14,6 +14,11 @@ jieba.load_userdict('src/dict.user')
 with open('src/stopwords.txt', 'r', encoding='utf-8') as f:
     stopwords = [line.strip() for line in f.readlines()]
 
+"""
+initial variable
+"""
+index = {}
+
 def load_csv(file_name):
     """
     Use pandas to load csv file.
@@ -88,7 +93,14 @@ def cut(row):
         else:
             seg.extend(n_gram(concat_str))
 
-    return list(set(seg))
+    seg = list(set(seg))
+    # construct index
+    for w in seg:
+        if w not in index:
+            index[w] = []
+        index[w].append(row.iloc[0])
+
+    return seg
 
 
 def search(ty, querys, row):
@@ -137,6 +149,7 @@ if __name__ == '__main__':
     source_data = load_csv(args.source)
     source_data.iloc[:, 1] = source_data.apply(cut, axis=1)
     print('Finish loading source data, and building search engine.')
+    print(len(index))
 
     # TODO compute query result
     # read query file
