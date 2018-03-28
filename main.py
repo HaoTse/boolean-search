@@ -22,6 +22,15 @@ def load_csv(file_name):
     return df
 
 
+def verify(w):
+    """
+    Verify the word if in stopwords or is empty.
+    """
+    if w not in stopwords and not w.isspace():
+        return True
+    return False
+
+
 def cut(row):
     """
     Use jieba to cut the source sentence.
@@ -39,13 +48,14 @@ def cut(row):
         trigram = []
 
         for i in range(len(w) - 1):
+            # bi-gram
             bi = w[i:i+2]
-            if bi not in stopwords and not bi.isspace():
+            if verify(bi):
                 bigram.append(bi)
-            if i < len(w) - 2:
-                tri = w[i:i+3]
-                if tri not in stopwords and not tri.isspace():
-                    trigram.append(tri)
+
+            # tri-gram
+            if i < len(w) - 2 and verify(w[i:i+3]):
+                trigram.append(w[i:i+3])
 
         return bigram + trigram
 
@@ -56,22 +66,24 @@ def cut(row):
         word = words[i]
         next_word = words[i + 1]
         concat_str = word + next_word
+        # check if has chinese
         if not re.search(u'[\u4e00-\u9fff]', word) or not re.search(u'[\u4e00-\u9fff]', next_word):
-            if not re.search(u'[\u4e00-\u9fff]', word):
-                if word not in stopwords and not word.isspace():
+            # two words are both English
+            if not re.search(u'[\u4e00-\u9fff]', word) and not re.search(u'[\u4e00-\u9fff]', next_word):
+                if verify(word):
                     seg.append(word)
-                if len(next_word) == 2:
+                if verify(next_word):
                     seg.append(next_word)
-                elif len(next_word) > 2:
-                    seg.extend(n_gram(next_word))
             else:
-                if next_word not in stopwords and not next_word.isspace():
-                    seg.append(next_word)
-                if len(word) == 2:
-                    seg.append(word)
-                elif len(word) > 2:
-                    seg.extend(n_gram(word))
-        elif len(concat_str) == 2 and concat_str not in stopwords and not concat_str.isspace():
+                eng_word, chi_word = (word, next_word) if not re.search(u'[\u4e00-\u9fff]', word) else (next_word, word)
+                if verify(eng_word):
+                    seg.append(eng_word)
+                # deal with Chinese word
+                if len(chi_word) == 2 and verify(chi_word):
+                    seg.append(chi_word)
+                elif len(chi_word) > 2:
+                    seg.extend(n_gram(chi_word))
+        elif len(concat_str) == 2 and verify(concat_str):
             seg.append(concat_str)
         else:
             seg.extend(n_gram(concat_str))
@@ -79,7 +91,7 @@ def cut(row):
     return list(set(seg))
 
 
-def check(ty, querys, row):
+def search(ty, querys, row):
     """
     According to type, do different computing.
     The type can be 'and', 'or', or 'not'.
@@ -158,7 +170,7 @@ if __name__ == '__main__':
         # compute
         result = []
         for index, row in source_data.iterrows():
-            if check(ty, querys, row):
+            if search(ty, querys, row):
                 result.append(str(row[0]))
 
         # check if has result
@@ -182,7 +194,6 @@ if __name__ == '__main__':
     print("Average not query wasting %s seconds." % (sum(not_time) / len(not_time)))
     print("Average total wasting %s seconds." % (sum(total_time) / len(total_time)))
     
-  
     # TODO output result
     tmp = []
     with open(args.output, 'w', encoding='utf-8') as f:

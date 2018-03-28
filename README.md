@@ -16,6 +16,22 @@ Output format example:
 0
 ```
 
+## Data Process
+- Use `jieba`.
+- Find out number, decimal and percent, and ignore them.
+- Handle Englist and Chinese separately, and find out bigram and trigram in Chinese.
+
+```
+words = cut list from source sentences using jieba
+for word in words:
+    next = the next word in words
+    if word or next is English:
+        store the English one directly
+        get bigram and trigram form the Chinese one
+    else:
+        concat word and next, and get bigram and trigram from it
+```
+
 ## Result
 
 - The number of query is `11`.
