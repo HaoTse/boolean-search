@@ -31,14 +31,52 @@ def cut(row):
     sentence = row.iloc[1]
     sentence = re.sub(r'[0-9]+(.?[0-9]+)?%?', 'TAG_NUM', sentence)
     
-    # cut the sentence
-    words = jieba.cut_for_search(sentence)
-    seg = []
-    for word in words:
-        if word not in stopwords and not word.isspace():
-            seg.append(word)
+    def n_gram(w):
+        """
+        find out bi-gram and tri-gram
+        """
+        bigram = []
+        trigram = []
 
-    return seg
+        for i in range(len(w) - 1):
+            bi = w[i:i+2]
+            if bi not in stopwords and not bi.isspace():
+                bigram.append(bi)
+            if i < len(w) - 2:
+                tri = w[i:i+3]
+                if tri not in stopwords and not tri.isspace():
+                    trigram.append(tri)
+
+        return bigram + trigram
+
+    # cut the sentence
+    words = jieba.lcut(sentence)
+    seg = []
+    for i in range(len(words) - 1):
+        word = words[i]
+        next_word = words[i + 1]
+        concat_str = word + next_word
+        if not re.search(u'[\u4e00-\u9fff]', word) or not re.search(u'[\u4e00-\u9fff]', next_word):
+            if not re.search(u'[\u4e00-\u9fff]', word):
+                if word not in stopwords and not word.isspace():
+                    seg.append(word)
+                if len(next_word) == 2:
+                    seg.append(next_word)
+                elif len(next_word) > 2:
+                    seg.extend(n_gram(next_word))
+            else:
+                if next_word not in stopwords and not next_word.isspace():
+                    seg.append(next_word)
+                if len(word) == 2:
+                    seg.append(word)
+                elif len(word) > 2:
+                    seg.extend(n_gram(word))
+        elif len(concat_str) == 2 and concat_str not in stopwords and not concat_str.isspace():
+            seg.append(concat_str)
+        else:
+            seg.extend(n_gram(concat_str))
+
+    return list(set(seg))
 
 
 def check(ty, querys, row):
@@ -85,8 +123,8 @@ if __name__ == '__main__':
     
     # TODO load source data, build search engine
     source_data = load_csv(args.source)
-    # source_data.iloc[:, 1] = source_data.apply(cut, axis=1)
-    # print('Finish loading source data, and building search engine.')
+    source_data.iloc[:, 1] = source_data.apply(cut, axis=1)
+    print('Finish loading source data, and building search engine.')
 
     # TODO compute query result
     # read query file

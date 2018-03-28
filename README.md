@@ -24,7 +24,7 @@ Output format example:
 
 | method | index time | average query time | total time |
 | ------ | ---------- | ------------------ | ---------- |
-| scan   |            | 3.93 s             | 46.71 s    |
+| scan   |            | 3.93 s             | 44.42 s    |
 
 ### each query excution time
 
