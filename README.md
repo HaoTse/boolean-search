@@ -35,6 +35,7 @@ for word in words:
     else:
         concat word and next, and get bigram and trigram from it
 ```
+- The index size is 1,056,375.
 
 ## Result
 

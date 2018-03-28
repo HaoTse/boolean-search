@@ -149,7 +149,6 @@ if __name__ == '__main__':
     source_data = load_csv(args.source)
     source_data.iloc[:, 1] = source_data.apply(cut, axis=1)
     print('Finish loading source data, and building search engine.')
-    print(len(index))
 
     # TODO compute query result
     # read query file
