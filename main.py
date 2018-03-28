@@ -37,12 +37,6 @@ def cut(row):
         if word not in stopwords and not word.isspace():
             seg.append(word)
 
-    """ output tmp
-    output = open('tmp', 'w', encoding='utf-8')
-    output.writelines(["%s " % s for s in seg])
-    output.write('\n')
-    """
-
     return seg
 
 
@@ -64,9 +58,10 @@ def check(ty, querys, row):
                 return True
         return False
     elif ty == 'not':
-        for query in querys:
-            if query.strip() in row[1]:
-                return False
+        if querys[0].strip() in row[1]:
+            for query in querys[1:]:
+                if query.strip() in row[1]:
+                    return False
         return True
     
     return False
@@ -89,7 +84,7 @@ if __name__ == '__main__':
     
     # TODO load source data, build search engine
     source_data = load_csv(args.source)
-    source_data.iloc[:, 1] = source_data.apply(cut, axis=1)
+    # source_data.iloc[:, 1] = source_data.apply(cut, axis=1)
     print('Finish loading source data, and building search engine.')
 
     # TODO compute query result

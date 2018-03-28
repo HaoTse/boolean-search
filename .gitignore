@@ -104,8 +104,8 @@ ENV/
 *.csv
 
 # query and output file
-query.txt
-output.txt
+query*.txt
+output*.txt
 
 # temp file
 tmp
