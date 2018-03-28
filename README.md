@@ -22,6 +22,12 @@ Output format example:
 - The number of sentences in source is `100000`.
 - Use `time` command to compuate the spending time.
 
-| method | time  |
-| ------ | ----- |
-| scan   | 46.71 |
+| method | index time | average query time | total time |
+| ------ | ---------- | ------------------ | ---------- |
+| scan   |            | 3.93 s             | 46.71 s    |
+
+### each query excution time
+
+| method | and query | or query | not query |
+| ------ | --------- | -------- | --------- |
+| scan   | 3.72 s    | 4.51 s   | 3.72 s    |

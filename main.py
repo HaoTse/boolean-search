@@ -1,6 +1,7 @@
 import pandas as pd
 import jieba
 import re
+import time
 
 """
 setup of jieba
@@ -93,7 +94,15 @@ if __name__ == '__main__':
         lines = f.readlines()
     # compute query result
     outputs = []
+    # initial time variable
+    and_time = []
+    or_time = []
+    not_time = []
+    total_time = []
     for line in lines:
+        # initial start time
+        start_time = time.time()
+
         # get querys type and content
         if 'and' in line:
             ty = 'and'
@@ -119,6 +128,22 @@ if __name__ == '__main__':
             outputs.append(result)
         else:
             outputs.append([str(0)])
+
+        # compute excution time
+        waste = time.time() - start_time
+        if ty == 'and':
+            and_time.append(waste)
+        elif ty == 'or':
+            or_time.append(waste)
+        elif ty == 'not':
+            not_time.append(waste)
+        total_time.append(waste)
+    # output excution time
+    print("Average and query wasting %s seconds." % (sum(and_time) / len(and_time)))
+    print("Average or query wasting %s seconds." % (sum(or_time) / len(or_time)))
+    print("Average not query wasting %s seconds." % (sum(not_time) / len(not_time)))
+    print("Average total wasting %s seconds." % (sum(total_time) / len(total_time)))
+    
   
     # TODO output result
     tmp = []
