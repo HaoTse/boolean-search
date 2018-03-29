@@ -103,31 +103,29 @@ def cut(row):
     return seg
 
 
-def search(ty, querys, row):
+def search(ty, querys):
     """
     According to type, do different computing.
     The type can be 'and', 'or', or 'not'.
-    Return true if meeting the type. Else, return false.
+    Return the set of result. If empty return 0.
     """
 
+    tmp = querys[0].strip()
+    rtn = set(index[tmp]) if tmp in index else set()
     if ty == 'and':
-        for query in querys:
-            if not query.strip() in row[1]:
-                return False
-        return True
+        for query in querys[1:]:
+            tmp = query.strip()
+            rtn = rtn & set(index[tmp]) if tmp in index else rtn & set()
     elif ty == 'or':
-        for query in querys:
-            if query.strip() in row[1]:
-                return True
-        return False
+        for query in querys[1:]:
+            tmp = query.strip()
+            rtn = rtn | set(index[tmp]) if tmp in index else rtn | set()
     elif ty == 'not':
-        if querys[0].strip() in row[1]:
-            for query in querys[1:]:
-                if query.strip() in row[1]:
-                    return False
-            return True
+        for query in querys[1:]:
+            tmp = query.strip()
+            rtn = rtn - set(index[tmp]) if tmp in index else rtn - set()
     
-    return False
+    return sorted(rtn) if bool(rtn) else set([0])
 
 
 if __name__ == '__main__':
@@ -180,16 +178,8 @@ if __name__ == '__main__':
             continue
         
         # compute
-        result = []
-        for index, row in source_data.iterrows():
-            if search(ty, querys, row):
-                result.append(str(row[0]))
-
-        # check if has result
-        if result:
-            outputs.append(result)
-        else:
-            outputs.append([str(0)])
+        result = search(ty, querys)
+        outputs.append(result)
 
         # compute excution time
         waste = time.time() - start_time
@@ -210,5 +200,5 @@ if __name__ == '__main__':
     tmp = []
     with open(args.output, 'w', encoding='utf-8') as f:
         for output in outputs:
-            tmp.append(','.join(output))
+            tmp.append(','.join(str(x) for x in output))
         f.write('\n'.join(tmp))
