@@ -4,20 +4,14 @@ import re
 import time
 
 """
-setup of jieba
+initial variable
 """
-# load zh-TW dictionary
-jieba.set_dictionary('src/dict.txt.big')
-# load user dictionary
-jieba.load_userdict('src/dict.user')
 # load stopwords
 with open('src/stopwords.txt', 'r', encoding='utf-8') as f:
     stopwords = [line.strip() for line in f.readlines()]
-
-"""
-initial variable
-"""
+# inverted index map
 index = {}
+
 
 def load_csv(file_name):
     """
@@ -140,6 +134,12 @@ if __name__ == '__main__':
                         default='output.txt',
                         help='output file name')
     args = parser.parse_args()
+
+    # setup of jieba
+    # load zh-TW dictionary
+    jieba.set_dictionary('src/dict.txt.big')
+    # load user dictionary
+    jieba.load_userdict('src/dict.user')
     
     # load source data, build search engine
     start_time = time.time()
