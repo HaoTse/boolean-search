@@ -100,8 +100,6 @@ def cut(row):
             index[w] = []
         index[w].append(row.iloc[0])
 
-    return seg
-
 
 def search(ty, querys):
     """
@@ -143,13 +141,15 @@ if __name__ == '__main__':
                         help='output file name')
     args = parser.parse_args()
     
-    # TODO load source data, build search engine
+    # load source data, build search engine
     start_time = time.time()
     source_data = load_csv(args.source)
-    source_data.iloc[:, 1] = source_data.apply(cut, axis=1)
-    print('Finish loading source data, and building search engine. Wasting %s seconds.' % (time.time() - start_time))
+    source_data.apply(cut, axis=1)
+    index_time = time.time() - start_time
+    print('Finish loading source data, and building search engine.')
 
-    # TODO compute query result
+    # compute query result
+    print('Loading query file and computing.')
     # read query file
     with open(args.query, 'r', encoding='utf-8') as f:
         lines = f.readlines()
@@ -191,15 +191,20 @@ if __name__ == '__main__':
         elif ty == 'not':
             not_time.append(waste)
         total_time.append(waste)
-    # output excution time
-    print("Average and query wasting %s seconds." % (sum(and_time) / len(and_time)))
-    print("Average or query wasting %s seconds." % (sum(or_time) / len(or_time)))
-    print("Average not query wasting %s seconds." % (sum(not_time) / len(not_time)))
-    print("Average total wasting %s seconds." % (sum(total_time) / len(total_time)))
     
-    # TODO output result
+    # output result
     tmp = []
     with open(args.output, 'w', encoding='utf-8') as f:
         for output in outputs:
             tmp.append(','.join(str(x) for x in output))
         f.write('\n'.join(tmp))
+    print("Output the result to %s." % (args.output))
+
+    # output excution time
+    print("| -----------------------------Excution time---------------------------------- |")
+    print("| index | and(per query) | or(per query) | not(per query) | average(per query) |")
+    print("| ----- | -------------- | ------------- | -------------- | ------------------ |")
+    print("| %2.2f | %2.12f | %2.11f | %2.12f | %2.16f |" %
+            (index_time, sum(and_time) / len(and_time), sum(or_time) / len(or_time),
+            sum(not_time) / len(not_time), sum(total_time) / len(total_time)))
+    print("| ---------------------------------------------------------------------------- |")
