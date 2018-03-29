@@ -43,12 +43,14 @@ for word in words:
 - The number of sentences in source is `100000`.
 - Use `time` command to compuate the spending time.
 
-| method | index time | average query time | total time |
-| ------ | ---------- | ------------------ | ---------- |
-| scan   |            | 3.93 s             | 44.42 s    |
+| method             | index time | average query time | total time |
+| ------------------ | ---------- | ------------------ | ---------- |
+| scan               |            | 3.93 s             | 44.42 s    |
+| ==inverted index== | 35.66 s    | 1.95e-04 s         | 37.26 s    |
 
 ### each query excution time
 
-| method | and query | or query | not query |
-| ------ | --------- | -------- | --------- |
-| scan   | 3.72 s    | 4.51 s   | 3.72 s    |
+| method         | and query | or query  | not query |
+| -------------- | --------- | --------- | --------- |
+| scan           | 3.72 s    | 4.51 s    | 3.72 s    |
+| inverted index | 7.4e-05 s | 4.6e-04 s | 2.5e-04 s |

@@ -144,9 +144,10 @@ if __name__ == '__main__':
     args = parser.parse_args()
     
     # TODO load source data, build search engine
+    start_time = time.time()
     source_data = load_csv(args.source)
     source_data.iloc[:, 1] = source_data.apply(cut, axis=1)
-    print('Finish loading source data, and building search engine.')
+    print('Finish loading source data, and building search engine. Wasting %s seconds.' % (time.time() - start_time))
 
     # TODO compute query result
     # read query file
