@@ -4,6 +4,24 @@
 - We will only use `2-gram`, `3-gram`, and English terms in queries.
 - Each query will contain only one kind of operation type (either `and`, `or`, or `not`), but may contain many times.
 
+### prerequisite
+- python 3.6.4
+- `pip install -r requirements.txt`
+
+### command
+```
+$ python main.py
+```
+```
+usage: main.py [-h] [--source SOURCE] [--query QUERY] [--output OUTPUT]
+
+optional arguments:
+  -h, --help       show this help message and exit
+  --source SOURCE  input source data file name
+  --query QUERY    query file name
+  --output OUTPUT  output file name
+```
+
 ## Data Format
 
 Query format example:
