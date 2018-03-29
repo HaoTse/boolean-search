@@ -59,12 +59,12 @@ for word in words:
 
 - The number of query is `11`.
 - The number of sentences in source is `100000`.
-- Use `time` command to compuate the spending time.
+- Use `time` command to compuate the spending total time.
 
 | method             | index time | average query time | total time |
 | ------------------ | ---------- | ------------------ | ---------- |
 | scan               |            | 3.93 s             | 44.42 s    |
-| **inverted index** | 35.66 s    | 1.95e-04 s         | 37.26 s    |
+| ==inverted index== | 35.07 s    | 1.95e-04 s         | 36.53 s    |
 
 ### each query excution time
 

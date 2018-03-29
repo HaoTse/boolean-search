@@ -49,20 +49,20 @@ def cut(row):
         """
         find out bi-gram and tri-gram
         """
-        bigram = []
-        trigram = []
+        rtn = []
 
         for i in range(len(w) - 1):
             # bi-gram
             bi = w[i:i+2]
-            if verify(bi):
-                bigram.append(bi)
+            if verify(bi) and bi not in rtn:
+                rtn.append(bi)
 
             # tri-gram
-            if i < len(w) - 2 and verify(w[i:i+3]):
-                trigram.append(w[i:i+3])
+            tri = w[i:i+3]
+            if i < len(w) - 2 and verify(tri) and tri not in rtn:
+                rtn.append(tri)
 
-        return bigram + trigram
+        return rtn
 
     # cut the sentence
     words = jieba.lcut(sentence)
