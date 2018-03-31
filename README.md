@@ -64,7 +64,7 @@ for word in words:
 | method             | index time | average query time | total time |
 | ------------------ | ---------- | ------------------ | ---------- |
 | scan               |            | 3.93 s             | 44.42 s    |
-| ==inverted index== | 35.07 s    | 1.95e-04 s         | 36.53 s    |
+| **inverted index** | 35.07 s    | 1.95e-04 s         | 36.53 s    |
 
 ### each query excution time
 
