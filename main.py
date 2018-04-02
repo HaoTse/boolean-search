@@ -18,24 +18,24 @@ def search(ty, querys):
     """
 
     tmp = querys[0].strip()
-    rtn = index[tmp] if tmp in index else set(value for key, value in source.items() if tmp in key)
+    rtn = index[tmp] if tmp in index else set(key for key, value in source.items() if tmp in value)
     index[tmp] = rtn
     if ty == 'and':
         for query in querys[1:]:
             tmp = query.strip()
-            result = index[tmp] if tmp in index else set(value for key, value in source.items() if tmp in key)
+            result = index[tmp] if tmp in index else set(key for key, value in source.items() if tmp in value)
             index[tmp] = result
             rtn = rtn & result
     elif ty == 'or':
         for query in querys[1:]:
             tmp = query.strip()
-            result = index[tmp] if tmp in index else set(value for key, value in source.items() if tmp in key)
+            result = index[tmp] if tmp in index else set(key for key, value in source.items() if tmp in value)
             index[tmp] = result
             rtn = rtn | result
     elif ty == 'not':
         for query in querys[1:]:
             tmp = query.strip()
-            result = index[tmp] if tmp in index else set(value for key, value in source.items() if tmp in key)
+            result = index[tmp] if tmp in index else set(key for key, value in source.items() if tmp in value)
             index[tmp] = result
             rtn = rtn - result
     
@@ -61,7 +61,7 @@ if __name__ == '__main__':
     start_time = time.time()
     with open(args.source, 'r', encoding='utf-8') as f:
         for row in csv.reader(f):
-            source[row[1]] = row[0]
+            source[row[0]] = row[1]
     index_time = time.time() - start_time
     print('Finish loading source data, and building search engine.')
 
