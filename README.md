@@ -39,21 +39,11 @@ Output format example:
 ```
 
 ## Data Process
-- Use `jieba`.
 - Find out number, decimal and percent, and ignore them.
-- Handle Englist and Chinese separately, and beacuse of the requirements, we only find out bigram and trigram in Chinese.
-
-```
-words = cut list from source sentences using jieba
-for word in words:
-    next = the next word in words
-    if word or next is English:
-        store the English one directly
-        get bigram and trigram form the Chinese one
-    else:
-        concat word and next, and get bigram and trigram from it
-```
-- The index size is 1,056,375.
+- Find out the English words.
+- Make english words and punctuation to be splitting token
+- Use splitting token to split sentences, and beacuse of the requirements, we only find out bigram and trigram.
+- The index size is `11,718,819`.
 
 ## Result
 
@@ -64,11 +54,11 @@ for word in words:
 | method             | index time | average query time | total time |
 | ------------------ | ---------- | ------------------ | ---------- |
 | scan               |            | 3.93 s             | 44.42 s    |
-| **inverted index** | 15.36 s    | 5.23e-04 s         | 16.44 s    |
+| **inverted index** | 7.76 s     | 4.261190e-04 s     | 8.15 s     |
 
 ### each query excution time
 
-| method         | and query | or query  | not query |
-| -------------- | --------- | --------- | --------- |
-| scan           | 3.72 s    | 4.51 s    | 3.72 s    |
-| inverted index | 1.1e-04 s | 1.1e-03 s | 4.2e-04 s |
+| method         | and query      | or query       | not query      |
+| -------------- | -------------- | -------------- | -------------- |
+| scan           | 3.72 s         | 4.51 s         | 3.72 s         |
+| inverted index | 1.060963e-04 s | 1.161814e-03 s | 4.591942e-04 s |

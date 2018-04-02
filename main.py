@@ -1,5 +1,4 @@
 import csv
-import jieba
 import re
 import time
 
@@ -15,69 +14,56 @@ index = {}
 
 def verify(w):
     """
-    Verify the word if in stopwords or is empty.
+    Verify the word if include stopwords or empty.
     """
-    if w not in stopwords and not w.isspace():
-        return True
-    return False
+    if any(ext in w for ext in stopwords) or ' ' in w or '\u3000' in w:
+        return False
+    return True
 
 
 def cut(row):
     """
-    Use jieba to cut the source sentence.
+    Cut the source sentence.
     """
     
     # preprocess number, decimal and percent
     sentence = row[1]
-    sentence = re.sub(r'[0-9]+(.?[0-9]+)?%?', 'TAG_NUM', sentence)
-    
-    def n_gram(w):
+    sentence = re.sub(r'[0-9]+(.?[0-9]+)?%?', '%', sentence)
+    # find out english words
+    eng_words = re.findall(r'[A-Za-z]+', sentence)
+    # make english words and punctuation to be split token
+    sentence = re.sub(r'[A-Za-z]+|：|:|！|!|;|，|、|%|？|＿|％|-|\.|\+', 'TAG_SPLIT', sentence)
+
+    def n_gram(s):
         """
         find out bi-gram and tri-gram
         """
         rtn = []
 
-        for i in range(len(w) - 1):
+        for i in range(len(s) - 2):
             # bi-gram
-            bi = w[i:i+2]
-            if verify(bi) and bi not in rtn:
+            bi = s[i:i+2]
+            if bi not in rtn and verify(bi):
                 rtn.append(bi)
 
             # tri-gram
-            tri = w[i:i+3]
-            if i < len(w) - 2 and verify(tri) and tri not in rtn:
+            tri = s[i:i+3]
+            if tri not in rtn and verify(tri):
                 rtn.append(tri)
+        
+        # last bigram
+        bi = s[-2:]
+        if bi not in rtn and verify(bi):
+            rtn.append(bi)
 
         return rtn
 
     # cut the sentence
-    words = jieba.lcut(sentence)
     seg = []
-    for i in range(len(words) - 1):
-        word = words[i]
-        next_word = words[i + 1]
-        concat_str = word + next_word
-        # check if has chinese
-        if not re.search(u'[\u4e00-\u9fff]', word) or not re.search(u'[\u4e00-\u9fff]', next_word):
-            # two words are both English
-            if not re.search(u'[\u4e00-\u9fff]', word) and not re.search(u'[\u4e00-\u9fff]', next_word):
-                if verify(word):
-                    seg.append(word)
-                if verify(next_word):
-                    seg.append(next_word)
-            else:
-                eng_word, chi_word = (word, next_word) if not re.search(u'[\u4e00-\u9fff]', word) else (next_word, word)
-                if verify(eng_word):
-                    seg.append(eng_word)
-                # deal with Chinese word
-                if len(chi_word) == 2 and verify(chi_word):
-                    seg.append(chi_word)
-                elif len(chi_word) > 2:
-                    seg.extend(n_gram(chi_word))
-        elif len(concat_str) == 2 and verify(concat_str):
-            seg.append(concat_str)
-        else:
-            seg.extend(n_gram(concat_str))
+    for sub in sentence.split('TAG_SPLIT'):
+        if not sub.isspace():
+            seg.extend(n_gram(sub.strip()))
+    seg.extend(eng_words)
 
     seg = list(set(seg))
     # construct index
@@ -127,12 +113,6 @@ if __name__ == '__main__':
                         default='output.txt',
                         help='output file name')
     args = parser.parse_args()
-
-    # setup of jieba
-    # load zh-TW dictionary
-    jieba.set_dictionary('src/dict.txt.big')
-    # load user dictionary
-    jieba.load_userdict('src/dict.user')
     
     # load source data, build search engine
     start_time = time.time()
@@ -195,7 +175,7 @@ if __name__ == '__main__':
     print("| -----------------------------Excution time---------------------------------- |")
     print("| index | and(per query) | or(per query) | not(per query) | average(per query) |")
     print("| ----- | -------------- | ------------- | -------------- | ------------------ |")
-    print("| %2.2f | %2.12f | %2.11f | %2.12f | %2.16f |" %
-            (index_time, sum(and_time) / len(and_time), sum(or_time) / len(or_time),
+    print("| {0:5.2f} | {1:14e} | {2:13e} | {3:14e} | {4:18e} |".format(index_time,
+            sum(and_time) / len(and_time), sum(or_time) / len(or_time),
             sum(not_time) / len(not_time), sum(total_time) / len(total_time)))
     print("| ---------------------------------------------------------------------------- |")
