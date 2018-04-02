@@ -52,32 +52,32 @@ Output format example:
 - Find out the English words.
 - Make english words and punctuation to be splitting token
 - Use splitting token to split sentences, and beacuse of the requirements, we only find out bigram and trigram.
-- The map size is `1,172,261`.
 - Implementation is in `inverted_index.py`.
 
 ## Result
-
-- The number of query is `11`.
-- The number of sentences in source is `100000`.
 - Use `time` command to compuate the spending total time.
 
-| method         | index time | average query time | total time |
-| -------------- | ---------- | ------------------ | ---------- |
-| scan           |            | 3.93 s             | 44.42 s    |
-| sentence key   | 0.07 s     | 7.877111e-03 s     | 0.18 s     |
-| inverted index | 3.25 s     | 4.261190e-04 s     | 3.63 s     |
+### small set
+- The number of query is `11`.
+- The number of sentences in source is `100000`.
 
-### each query excution time
+| method         | index time | average per query time | total time |
+| -------------- | ---------- | ---------------------- | ---------- |
+| scan           |            | 3.93 s                 | 44.42 s    |
+| sentence key   | 0.07 s     | 7.877111e-03 s         | 0.18 s     |
+| inverted index | 3.25 s     | 4.261190e-04 s         | 3.63 s     |
 
-| method         | and query      | or query       | not query      |
-| -------------- | -------------- | -------------- | -------------- |
-| scan           | 3.72 s         | 4.51 s         | 3.72 s         |
-| sentence key   | 7.305758e-03 s | 1.169300e-02 s | 4.289150e-04 s |
-| inverted index | 1.060963e-04 s | 1.161814e-03 s | 4.591942e-04 s |
+### large set
+- The number of query is `100`.
+- The number of sentences in source is `2,692,730`.
+
+| method         | index time | average per query time | total time |
+| -------------- | ---------- | ---------------------- | ---------- |
+| sentence key   | 11.66 s    | 1.035 s                | 116 s      |
+| inverted index | 1018.51 s  | 0.015 s                | 1091.09 s  |
 
 ### note
 
-在目前的實驗數據下 sentence key 的方法會比 inverted index 快上許多，並進行以下分析與測試
-- 在少量的 query 下，sentence key 的總體速度比較快，然而每個 query 的平均執行時間是 inverted index 的 25 倍左右，所以隨著 query 的數量增加，sntence key 的執行時間會漸漸的超越 inverted index
-- 將 source.csv 擴大至 1,396,365 行，sentence key 的速度仍遠快於 inverted index
-- 測試中，當 query 數量達到上千時，inverted index 的速度會快於 sentence key，然而在 Requirements 中只使用 100 條 query，所以 `main.py` 所使用的方法為 `sentence key`
+- 在小量資料的實驗下 sentence key 的方法會比 inverted index 快上許多，在少量的 query 下，sentence key 的總體速度比較快，但是每個 query 的平均執行時間是 inverted index 的 25 倍左右，所以隨著 query 的數量增加，sntence key 的執行時間會漸漸的超越 inverted index
+- 在大量資料的實驗下，sentence key 的速度仍遠快於 inverted index
+- 測試中，當 query 數量達到上千時，inverted index 的速度會快於 sentence key，然而在 Requirements 中提到只使用 100 條 query，所以 `main.py` 所使用的方法為 `sentence key`
