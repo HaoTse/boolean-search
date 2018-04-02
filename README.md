@@ -3,6 +3,7 @@
 ## Requirements
 - We will only use `2-gram`, `3-gram`, and English terms in queries.
 - Each query will contain only one kind of operation type (either `and`, `or`, or `not`), but may contain many times.
+- Only use `100` querys.
 
 ### prerequisite
 - python 3.6.4
@@ -42,7 +43,9 @@ Output format example:
 
 ### sentence key
 - Use complete sentence to be the key of index map.
-- Implementation is in `simple.py`.
+- In the process of searching, I will construct the word key based map.
+- If the word key based map has the current key, directly access it. Otherwise, search from sentence key based map.
+- Implementation is in `main.py`.
 
 ### inverted index
 - Find out number, decimal and percent, and ignore them.
@@ -50,7 +53,7 @@ Output format example:
 - Make english words and punctuation to be splitting token
 - Use splitting token to split sentences, and beacuse of the requirements, we only find out bigram and trigram.
 - The map size is `1,172,261`.
-- Implementation is in `main.py`.
+- Implementation is in `inverted_index.py`.
 
 ## Result
 
@@ -58,23 +61,23 @@ Output format example:
 - The number of sentences in source is `100000`.
 - Use `time` command to compuate the spending total time.
 
-| method             | index time | average query time | total time |
-| ------------------ | ---------- | ------------------ | ---------- |
-| scan               |            | 3.93 s             | 44.42 s    |
-| sentence key       | 0.07 s     | 1.860671e-02       | 0.34 s     |
-| **inverted index** | 3.25 s     | 4.261190e-04 s     | 3.63 s     |
+| method         | index time | average query time | total time |
+| -------------- | ---------- | ------------------ | ---------- |
+| scan           |            | 3.93 s             | 44.42 s    |
+| sentence key   | 0.07 s     | 7.877111e-03 s     | 0.18 s     |
+| inverted index | 3.25 s     | 4.261190e-04 s     | 3.63 s     |
 
 ### each query excution time
 
 | method         | and query      | or query       | not query      |
 | -------------- | -------------- | -------------- | -------------- |
 | scan           | 3.72 s         | 4.51 s         | 3.72 s         |
-| sentence key   | 1.711277e-02 s | 2.236072e-02 s | 1.780224e-02 s |
+| sentence key   | 7.305758e-03 s | 1.169300e-02 s | 4.289150e-04 s |
 | inverted index | 1.060963e-04 s | 1.161814e-03 s | 4.591942e-04 s |
 
 ### note
 
-在目前的實驗數據下 sentence key 的方法會比 inverted index 快上許多，然而 sentence key 卻有以下幾個問題
-- 隨著 source sentence 增加，在 sentence key 中每句句子都要進行 in operator 的搜尋，時間複雜度為 O(n)，因此搜尋時間可能會快速的增長，然而在 inverted index 的 map 中搜尋 word 的速度為 O(1)
+在目前的實驗數據下 sentence key 的方法會比 inverted index 快上許多，並進行以下分析與測試
 - 在少量的 query 下，sentence key 的總體速度比較快，然而每個 query 的平均執行時間是 inverted index 的 25 倍左右，所以隨著 query 的數量增加，sntence key 的執行時間會漸漸的超越 inverted index
-- 因此 `main.py` 中採用的方法為 inverted index
+- 將 source.csv 擴大至 1,396,365 行，sentence key 的速度仍遠快於 inverted index
+- 測試中，當 query 數量達到上千時，inverted index 的速度會快於 sentence key，然而在 Requirements 中只使用 100 條 query，所以 `main.py` 所使用的方法為 `sentence key`

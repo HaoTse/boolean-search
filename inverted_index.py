@@ -7,6 +7,72 @@ initial variable
 """
 # inverted index map
 index = {}
+# initial re
+re_dig = re.compile(r'[0-9]+(.?[0-9]+)?%?')
+re_eng = re.compile(r'[A-Za-z]+')
+re_split = re.compile(r'[A-Za-z]+|：|:|！|!|;|，|、|%|？|＿|％|-|\.|\+|」|「|\[|\]|~|`|\)|\(|）|（|/|…|"|《|》|【|】|\*|#|．|①|②|③|￥|－|／|〈|〉|〝|〞|＞|＜')
+
+
+def verify(w):
+    """
+    Verify the word if include stopwords or empty.
+    """
+    if ' ' in w or '\u3000' in w:
+        return False
+    return True
+
+
+def cut(row):
+    """
+    Cut the source sentence.
+    """
+    
+    # preprocess number, decimal and percent
+    sentence = row[1]
+    sentence = re_dig.sub('%', sentence)
+    # find out english words
+    eng_words = re_eng.findall(sentence)
+    # make english words and punctuation to be split token
+    sentence = re_split.sub('TAG_SPLIT', sentence)
+
+    def n_gram(s):
+        """
+        find out bi-gram and tri-gram
+        """
+        rtn = []
+
+        for i in range(len(s) - 2):
+            # bi-gram
+            bi = s[i:i+2]
+            if bi not in rtn and verify(bi):
+                rtn.append(bi)
+
+            # tri-gram
+            tri = s[i:i+3]
+            if tri not in rtn and verify(tri):
+                rtn.append(tri)
+        
+        # last bigram
+        bi = s[-2:]
+        if bi not in rtn and verify(bi):
+            rtn.append(bi)
+
+        return rtn
+
+    # cut the sentence
+    seg = []
+    for sub in sentence.split('TAG_SPLIT'):
+        if not sub.isspace():
+            seg.extend(n_gram(sub.strip()))
+    seg.extend(eng_words)
+
+    seg = list(set(seg))
+    # construct index
+    for w in seg:
+        try:
+            index[w].append(row[0])
+        except:
+            index[w] = [row[0]]
 
 
 def search(ty, querys):
@@ -17,19 +83,19 @@ def search(ty, querys):
     """
 
     tmp = querys[0].strip()
-    rtn = set(value for key, value in index.items() if tmp in key)
+    rtn = set(index[tmp]) if tmp in index else set()
     if ty == 'and':
         for query in querys[1:]:
-            tmp = set(value for key, value in index.items() if query.strip() in key)
-            rtn = rtn & tmp
+            tmp = query.strip()
+            rtn = rtn & set(index[tmp]) if tmp in index else rtn & set()
     elif ty == 'or':
         for query in querys[1:]:
-            tmp = set(value for key, value in index.items() if query.strip() in key)
-            rtn = rtn | tmp
+            tmp = query.strip()
+            rtn = rtn | set(index[tmp]) if tmp in index else rtn | set()
     elif ty == 'not':
         for query in querys[1:]:
-            tmp = set(value for key, value in index.items() if query.strip() in key)
-            rtn = rtn - tmp
+            tmp = query.strip()
+            rtn = rtn - set(index[tmp]) if tmp in index else rtn - set()
     
     return sorted(rtn, key=lambda x: int(x)) if bool(rtn) else set([str(0)])
 
@@ -53,9 +119,10 @@ if __name__ == '__main__':
     start_time = time.time()
     with open(args.source, 'r', encoding='utf-8') as f:
         for row in csv.reader(f):
-            index[row[1]] = row[0]
+            cut(row)
     index_time = time.time() - start_time
     print('Finish loading source data, and building search engine.')
+    print('The index map size is {0}.'.format(len(index)))
 
     # compute query result
     print('Loading query file and computing.')
@@ -107,10 +174,10 @@ if __name__ == '__main__':
     print("Output the result to %s." % (args.output))
 
     # output excution time
-    print("| -----------------------------Excution time---------------------------------- |")
-    print("| index | and(per query) | or(per query) | not(per query) | average(per query) |")
-    print("| ----- | -------------- | ------------- | -------------- | ------------------ |")
-    print("| {0:5.2f} | {1:14e} | {2:13e} | {3:14e} | {4:18e} |".format(index_time,
+    print("| -----------------------------Excution time----------------------------------- |")
+    print("| index  | and(per query) | or(per query) | not(per query) | average(per query) |")
+    print("| ------ | -------------- | ------------- | -------------- | ------------------ |")
+    print("| {0:6.2f} | {1:14e} | {2:13e} | {3:14e} | {4:18e} |".format(index_time,
             sum(and_time) / len(and_time), sum(or_time) / len(or_time),
             sum(not_time) / len(not_time), sum(total_time) / len(total_time)))
-    print("| ---------------------------------------------------------------------------- |")
+    print("| ----------------------------------------------------------------------------- |")
