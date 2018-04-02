@@ -65,7 +65,7 @@ Output format example:
 | -------------- | ---------- | ---------------------- | ---------- |
 | scan           |            | 3.93 s                 | 44.42 s    |
 | sentence key   | 0.07 s     | 7.877111e-03 s         | 0.18 s     |
-| inverted index | 3.25 s     | 4.261190e-04 s         | 3.63 s     |
+| inverted index | 2.69 s     | 4.261190e-04 s         | 3.31 s     |
 
 ### large set
 - The number of query is `100`.

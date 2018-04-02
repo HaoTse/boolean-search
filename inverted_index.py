@@ -45,29 +45,34 @@ def cut(row):
             # bi-gram
             bi = s[i:i+2]
             if bi not in rtn and verify(bi):
-                rtn.append(bi)
+                try:
+                    index[bi].append(row[0])
+                except:
+                    index[bi] = [row[0]]
 
             # tri-gram
             tri = s[i:i+3]
             if tri not in rtn and verify(tri):
-                rtn.append(tri)
+                try:
+                    index[tri].append(row[0])
+                except:
+                    index[tri] = [row[0]]
         
         # last bigram
         bi = s[-2:]
         if bi not in rtn and verify(bi):
-            rtn.append(bi)
-
-        return rtn
+            try:
+                index[bi].append(row[0])
+            except:
+                index[bi] = [row[0]]
 
     # cut the sentence
-    seg = []
     for sub in sentence.split('TAG_SPLIT'):
         if not sub.isspace():
-            seg.extend(n_gram(sub.strip()))
-    seg.extend(eng_words)
+            n_gram(sub.strip())
 
-    seg = list(set(seg))
-    # construct index
+    seg = list(set(eng_words))
+    # construct English words index
     for w in seg:
         try:
             index[w].append(row[0])
