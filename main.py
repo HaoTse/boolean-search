@@ -5,18 +5,19 @@ import time
 """
 initial variable
 """
-# load stopwords
-with open('src/stopwords.txt', 'r', encoding='utf-8') as f:
-    stopwords = [line.strip() for line in f.readlines()]
 # inverted index map
 index = {}
+# initial re
+re_dig = re.compile(r'[0-9]+(.?[0-9]+)?%?')
+re_eng = re.compile(r'[A-Za-z]+')
+re_split = re.compile(r'[A-Za-z]+|：|:|！|!|;|，|、|%|？|＿|％|-|\.|\+|」|「|\[|\]|~|`|\)|\(|）|（|/|…|"|《|》|【|】|\*|#|．|①|②|③|￥|－|／|〈|〉|〝|〞|＞|＜')
 
 
 def verify(w):
     """
     Verify the word if include stopwords or empty.
     """
-    if any(ext in w for ext in stopwords) or ' ' in w or '\u3000' in w:
+    if ' ' in w or '\u3000' in w:
         return False
     return True
 
@@ -28,11 +29,11 @@ def cut(row):
     
     # preprocess number, decimal and percent
     sentence = row[1]
-    sentence = re.sub(r'[0-9]+(.?[0-9]+)?%?', '%', sentence)
+    sentence = re_dig.sub('%', sentence)
     # find out english words
-    eng_words = re.findall(r'[A-Za-z]+', sentence)
+    eng_words = re_eng.findall(sentence)
     # make english words and punctuation to be split token
-    sentence = re.sub(r'[A-Za-z]+|：|:|！|!|;|，|、|%|？|＿|％|-|\.|\+', 'TAG_SPLIT', sentence)
+    sentence = re_split.sub('TAG_SPLIT', sentence)
 
     def n_gram(s):
         """
@@ -121,6 +122,7 @@ if __name__ == '__main__':
             cut(row)
     index_time = time.time() - start_time
     print('Finish loading source data, and building search engine.')
+    print('The index map size is {0}.'.format(len(index)))
 
     # compute query result
     print('Loading query file and computing.')
