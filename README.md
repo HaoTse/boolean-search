@@ -64,11 +64,11 @@ for word in words:
 | method             | index time | average query time | total time |
 | ------------------ | ---------- | ------------------ | ---------- |
 | scan               |            | 3.93 s             | 44.42 s    |
-| **inverted index** | 35.07 s    | 1.95e-04 s         | 36.53 s    |
+| **inverted index** | 15.36 s    | 5.23e-04 s         | 16.44 s    |
 
 ### each query excution time
 
 | method         | and query | or query  | not query |
 | -------------- | --------- | --------- | --------- |
 | scan           | 3.72 s    | 4.51 s    | 3.72 s    |
-| inverted index | 7.4e-05 s | 4.6e-04 s | 2.5e-04 s |
+| inverted index | 1.1e-04 s | 1.1e-03 s | 4.2e-04 s |

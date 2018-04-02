@@ -1,4 +1,4 @@
-import pandas as pd
+import csv
 import jieba
 import re
 import time
@@ -11,14 +11,6 @@ with open('src/stopwords.txt', 'r', encoding='utf-8') as f:
     stopwords = [line.strip() for line in f.readlines()]
 # inverted index map
 index = {}
-
-
-def load_csv(file_name):
-    """
-    Use pandas to load csv file.
-    """
-    df = pd.read_csv(file_name, delimiter=',', header=None)
-    return df
 
 
 def verify(w):
@@ -36,7 +28,7 @@ def cut(row):
     """
     
     # preprocess number, decimal and percent
-    sentence = row.iloc[1]
+    sentence = row[1]
     sentence = re.sub(r'[0-9]+(.?[0-9]+)?%?', 'TAG_NUM', sentence)
     
     def n_gram(w):
@@ -90,9 +82,10 @@ def cut(row):
     seg = list(set(seg))
     # construct index
     for w in seg:
-        if w not in index:
-            index[w] = []
-        index[w].append(row.iloc[0])
+        try:
+            index[w].append(row[0])
+        except:
+            index[w] = [row[0]]
 
 
 def search(ty, querys):
@@ -117,7 +110,7 @@ def search(ty, querys):
             tmp = query.strip()
             rtn = rtn - set(index[tmp]) if tmp in index else rtn - set()
     
-    return sorted(rtn) if bool(rtn) else set([0])
+    return sorted(rtn, key=lambda x: int(x)) if bool(rtn) else set([str(0)])
 
 
 if __name__ == '__main__':
@@ -143,8 +136,9 @@ if __name__ == '__main__':
     
     # load source data, build search engine
     start_time = time.time()
-    source_data = load_csv(args.source)
-    source_data.apply(cut, axis=1)
+    with open(args.source, 'r', encoding='utf-8') as f:
+        for row in csv.reader(f):
+            cut(row)
     index_time = time.time() - start_time
     print('Finish loading source data, and building search engine.')
 
@@ -156,10 +150,7 @@ if __name__ == '__main__':
     # compute query result
     outputs = []
     # initial time variable
-    and_time = []
-    or_time = []
-    not_time = []
-    total_time = []
+    and_time, or_time, not_time, total_time = [], [], [], []
     for line in lines:
         # initial start time
         start_time = time.time()
@@ -196,7 +187,7 @@ if __name__ == '__main__':
     tmp = []
     with open(args.output, 'w', encoding='utf-8') as f:
         for output in outputs:
-            tmp.append(','.join(str(x) for x in output))
+            tmp.append(','.join(output))
         f.write('\n'.join(tmp))
     print("Output the result to %s." % (args.output))
 
